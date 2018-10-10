@@ -8,7 +8,7 @@ Part 0: Demystifying SaaS app creation
 Creating and versioning a simple SaaS app
 -----------------------------------------
 
-SaaS apps are developed on your computer (or cloud-based IDE) but *deployed to production* on a server that others can access.  We try to minimize the differences between the development and production *environments*, to avoid difficult-to-diagnose problems in which something works one way on your development computer but a different way (or not at all) when that code is deployed to production.
+SaaS apps are developed on your computer (or virtual machine) but *deployed to production* on a server that others can access.  We try to minimize the differences between the development and production *environments*, to avoid difficult-to-diagnose problems in which something works one way on your development computer but a different way (or not at all) when that code is deployed to production.
 
 We have two mechanisms for keeping the development and production environments consistent.  The first is *version control*, such as Git, for the app's code.  But since almost all apps also rely on *libraries* written by others, such as *gems* in the case of Ruby, we need a way to keep track of which versions of which libraries our app has been tested with, so that the same ones are used in development and production.
 
@@ -16,7 +16,17 @@ Happily, Ruby has a wonderful system for managing gem dependencies: a gem called
 
 Let's start with the following steps:
 
-* Create a new empty directory to hold your new app, and use `git init` in that directory to start versioning it with Git.
+* Edit your ~/.bashrc file and at the bottom, create/set two environment variables, `PORT` and `IP`
+```sh
+export PORT="9292"   # use a port number that is open
+export IP="0.0.0.0"
+```
+
+* Restart your bash shell so that it will rerun your ~/.bashrc script. You can use either `source ~/.bashrc` or `exec bash` to do this.
+
+* Create a new repository in GitHub, call it `sinatra-hello`, then `git clone` it into your working directory.
+
+* Change directory into the sinatra-hello directory (`cd sinatra-hello`)
 
 * In that directory, create a new file called `Gemfile` (the capitalization is important) with the following contents.  This file will be a permanent part of your app and will travel with your app anywhere it goes:
 
@@ -41,11 +51,11 @@ Run the command `bundle`, which examines your `Gemfile` to make sure the correct
 To place under version control, use these commands:
 
 ```sh
-$ git add .
+$ git add Gemfile Gemfile.lock
 $ git commit -m "Set up the Gemfile"
 ```
 
-The first command stages all changed files for committing. The second command commits the staged files with the comment in the quotes. You can repeat these commands to commit future changes. Remember that these are LOCAL commits -- if you want these changes on GitHub, you'll need to do a git push command, which we will show later.
+The first command stages all changed files for committing. The second command commits the staged files with the comment in the quotes. You can repeat these commands to commit future changes. Remember that these are LOCAL commits -- if you want these changes on GitHub, you'll need to do a git push command.
 
 #### Self Check Questions (click triangle to check your answer)
 
@@ -75,7 +85,7 @@ require 'sinatra'
 
 class MyApp < Sinatra::Base
   get '/' do
-    "<!DOCTYPE html><html><head></head><body><h1>Hello World</h1></body></html>"
+    '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Hello World</title></head><body><h1>Hello World</h1></body></html>'
   end
 end
 ```
@@ -102,21 +112,21 @@ run MyApp
 
 The first line tells Rack that our app lives in the file `app.rb`, which you created above to hold your app's code.  We have to explicitly state that our `app` file is located in the current directory (.) because `require` normally looks only in standard system directories to find gems.
 
-If you're using Cloud9, you're now ready to test-drive our simple app with this command line:
+You're now ready to test-drive our simple app with this command line:
 
 ```sh
 $ bundle exec rackup -p $PORT -o $IP
 ```
-[Available ports on a hosted Cloud9 workspace](https://docs.c9.io/docs/run-an-application)
+(The `$PORT` and `$IP` are environment variables that you previously defined in your ~/.bashrc initialization script. You can also type in specific port numbers and IP address. Remember, the port number has to be "open" on the firewall for this to work, and the IP address to bind to should be 0.0.0.0 if you want any and all computers to be allowed to connect.)
 
-This command starts the Rack appserver and the WEBrick webserver.  Prefixing it with `bundle exec` ensures that you are running with the gems specified in `Gemfile.lock`.  Rack will look for `config.ru` and attempt to start our app based on the information there.  If you're using Cloud9, you will see a small popup in the terminal with a URL to your running webapp.  It will open in a new tab in the IDE if you click on it, but you should open up a fresh browser tab and paste in that URL.
+This command starts the Rack appserver and the WEBrick webserver.  Prefixing it with `bundle exec` ensures that you are running with the gems specified in `Gemfile.lock`.  Rack will look for `config.ru` and attempt to start our app based on the information there.
 
 Point a new Web browser tab at the running app's URL and verify that you can see "Hello World".
 
 #### Self Check Question
 
 <details>
-  <summary>What happens if you try to visit a non-root URL such as <code>https://workspace-username.c9.io/hello</code> and why? (your URL root will vary)</summary>
+  <summary>What happens if you try to visit a non-root URL such as <code>https://aaa.bbb.ccc.ddd/hello</code> and why? (your URL root will vary)</summary>
   <p><blockquote> You'll get a humorous error message from the Sinatra framework, since you don't have a route matching <code>get '/hello'</code> in your app.  Since Sinatra is a SaaS framework, the error message is packaged up in a Web page and delivered to your browser.</blockquote></p>
 </details>
 
@@ -131,7 +141,7 @@ Modify `app.rb` so that instead of "Hello World" it prints "Goodbye World". Save
 
 No changes? Confused?
 
-Now go back to the shell window where you ran `rackup` and press Ctrl-C to stop Rack.  Then type `bundle exec rackup -p $PORT -o $IP` again (for Cloud9), and once it is running, go back to your browser tab with your app and refresh the page.  This time it should work.
+Now go back to the shell window where you ran `rackup` and press Ctrl-C to stop Rack.  Then type `bundle exec rackup -p $PORT -o $IP` again, and once it is running, go back to your browser tab with your app and refresh the page.  This time it should work.
 
 What this shows you is that if you modify your app while it's running, you have to restart Rack in order for it to "see" those changes.  Since restarting it manually is tedious, we'll use the `rerun` gem, which restarts Rack automatically when it sees changes to files in the app's directory. (Rails does this for you by default during development, as we'll see, but Sinatra doesn't.)
 
@@ -153,17 +163,17 @@ Modify `app.rb` to print a different message, and verify that the change is dete
 
 Deploy to Heroku
 ----------------
-Heroku is a cloud platform-as-a-service (PaaS) where we can deploy our Sinatra (and later Rails) applications in a more robust way than via Cloud9. If you don't have an account yet, go sign up at http://www.heroku.com. You'll need your login and password for the next step.
+Heroku is a cloud platform-as-a-service (PaaS) where we can deploy our Sinatra (and later Rails) applications in a more robust way. (We are using Heroku here just to try a PaaS that is not Google App Engine -- and it's a little easier.) If you don't have an account yet, go sign up at http://www.heroku.com. You'll need your login and password for the next step.
 
-If using Cloud9, update your Heroku Toolbelt installation by typing the following command:
+Install Heroku Toolbelt in your development environment by typing the following command:
 
 ```
-$ wget -O- https://toolbelt.heroku.com/install-ubuntu.sh | sh
+$ wget -O- https://toolbelt.heroku.com/install-ubuntu.sh | bash
 ```
 
-Log in to your Heroku account by typing the command: `heroku login` in the Cloud9 terminal. This will connect your Cloud9 workspace to your Heroku account.
+Log in to your Heroku account by typing the command: `heroku login` in the terminal. This will connect your workspace to your Heroku account.
 
-While in the root directory of your project (not your whole workspace), type `heroku create` to create a new project in Heroku. This will tell the Heroku service to prepare for some incoming code, and locally on Cloud9, it will add a remote git repository for you called `heroku`.
+While in the root directory of your project (not your whole workspace), type `heroku create` to create a new project in Heroku. This will tell the Heroku service to prepare for some incoming code, and locally, it will add a remote git repository for you called `heroku`. (Note, you already have one remote git repository already created for you when you originally did `git clone` and that remote git repository is named `origin` by convention.)
 
 Next, make sure you stage and commit all changes locally as instructed above (i.e. `git add`, `git commit`, etc).
 
@@ -175,13 +185,24 @@ web: bundle exec rackup config.ru -p $PORT
 
 This tells Heroku to start a single web worker (Dyno) using essentially the same command line you used to start Rack locally. Note that in some cases, a `Procfile` is not necessary since Heroku can infer from your files how to start the app. However, it's always better to be explicit.  
 
-Your local Cloud9 repo is now ready to deploy to Heroku:
+Your local repo is now ready to deploy to Heroku:
 
 ```
 $ git push heroku master
 ```
 
-(`master` refers to which branch of the remote Heroku repo we are pushing to.  We'll learn about branches later in the course, but for now, suffice it to say that you can only deploy to the `master` branch on Heroku.) This push will create a running instance of your app at some URL ending with `herokuapp.com`. Enter that URL in a new browser tab (not in the Cloud9 IDE) to see your app running live. Congratulations, you did it--your app is live!
+(`master` refers to which branch of the remote Heroku repo we are pushing to.  We'll learn about branches later in the course, but for now, suffice it to say that you can only deploy to the `master` branch on Heroku.) This push will create a running instance of your app at some URL ending with `herokuapp.com`. Enter that URL in a new browser tab to see your app running live. Congratulations, you did it--your app is live!
+
+Note that if you also want to push your local repository changes to your own remote repository in GitHub, you will need to run:
+
+```
+$ git push origin master
+```
+
+Deploy to Google App Engine
+---------------------------
+Instructions forthcoming to deploy to Google Cloud Platform's PaaS, which is called Google App Engine. There are a few more steps involved than with Heroku.
+
 
 Summary
 -------
