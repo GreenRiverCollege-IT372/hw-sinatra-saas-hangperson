@@ -4,11 +4,9 @@ Hangperson: a scaffolded (!) ESaaS getting-started assignment
 (v1.1, September 2015.  Written by Armando Fox and Nick Herson)
 (some edits by mverdicchio 21 September 2015)
 (refinements by Armando Fox September 2017)
+(minor modifications by Kendrick Hang, October 2018)
 
 In this assignment you'll be introduced to part of the basic cycle of creating SaaS in a disciplined way.
-
-**NOTE: Do not clone this repo to your workspace. Fork it first, then clone your fork.**
-
 
 
 Learning Goals
@@ -23,10 +21,10 @@ After completing this assignment, you will be able to:
 
 Prerequisites
 -------------
-* You should be familiar with Ruby basics, for example by completing the Ruby Intro or Ruby Calisthenics assignment.
-* You should have read [ESaaS](http://www.saasbook.info) Chapter 2, "The Architecture of SaaS Applications", and watched the accompanying videos in the [MOOC](http://www.saas-class.org).
+* You should be familiar with Ruby basics, for example by completing the Ruby Intro assignment.
+* You should have read [ESaaS](http://www.saasbook.info) Chapter 2, "The Architecture of SaaS Applications".
 * You should be comfortable with basic Git usage and how to push your code to GitHub, as described in Appendix A of [ESaaS](http://www.saasbook.info).
-* You will need "survival level" Unix command-line skills and facility with an editor to edit code files, such as the built-in editor in the Cloud9 IDE.
+* You will need "survival level" Unix command-line skills and facility with an editor to edit code files, such as nano or vim.
 
 **NOTE: You may find the [Sinatra documentation](https://sinatrarb.com) helpful to have on hand.**
 
@@ -38,7 +36,7 @@ In this introductory assignment, we've provided RSpec unit tests to let you use 
 
 You'll then use the Sinatra framework to make the Hangman game available as SaaS.  Adapting the game logic for SaaS will introduce you to thinking about RESTful routes and service-oriented architecture. As you develop the "SaaS-ified" Hangman game, you'll use Cucumber to describe how gameplay will work from the player's point of view and as "full stack" integration tests that will drive SaaS development.  In the full Agile/XP cycle, you'd develop Cucumber scenarios yourself based on consultation with the customer, and create the necessary *step definitions* (Cucumber code that turns plain-English scenarios into runnable tests).  In this assignment we provide both the scenarios and step definitions for you.
 
-You'll deploy your game to the cloud using Heroku, giving you experience in automating SaaS deployment.
+You'll deploy your game to the cloud using Heroku and/or Google App Engine, giving you experience in automating SaaS deployment.
 
 **Why Sinatra?** 
 
